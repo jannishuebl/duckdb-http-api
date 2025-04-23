@@ -4,11 +4,11 @@ The DuckDB HTTP API Server provides a simple and efficient way to interact with 
 
 Key Features:
 
-    HTTP-based Interface: Query DuckDB databases over HTTP without the need for a dedicated client.
-    SQL Query Execution: Submit SQL queries using HTTP POST requests and receive query results in CSV or JSON format.
-    Flexible Data Access: Mount external data (such as CSV files) into the container and query them using DuckDB's SQL engine.
-    Extension Support: Easily install DuckDB extensions (such as spatial or other specialized extensions) to extend functionality.
-    Initialization Scripts: Run custom SQL scripts on server startup for setting up helper functions, configuring extensions, or preparing your database.
+- HTTP-based Interface: Query DuckDB databases over HTTP without the need for a dedicated client.
+- SQL Query Execution: Submit SQL queries using HTTP POST requests and receive query results in CSV or JSON format.
+- Flexible Data Access: Mount external data (such as CSV files) into the container and query them using DuckDB's SQL engine.
+- Extension Support: Easily install DuckDB extensions (such as spatial or other specialized extensions) to extend functionality.
+- Initialization Scripts: Run custom SQL scripts on server startup for setting up helper functions, configuring extensions, or preparing your database.
 
 This server is lightweight and highly customizable, making it ideal for local development, data analysis tasks, and integration with other tools and platforms.
 
