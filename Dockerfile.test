@@ -1,4 +1,4 @@
-FROM duckdb-http-api:latest
+FROM duckdb-http-api:test-base
 
 COPY init-test.sql /init.sql
 

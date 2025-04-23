@@ -4,29 +4,41 @@ on:
   push:
     branches: [main]
 
-  schedule:
-    - cron: "0 * * * *"  # hourly to check for new duckdb versions
-
   workflow_dispatch: {}
+
+  schedule:
+    - cron: "0 6 * * *"  # Daily at 06:00 UTC
 
 jobs:
   check-duckdb-version:
-    name: Check for new duckdb version
+    name: Get DuckDB Version
     runs-on: ubuntu-latest
     outputs:
       duckdb_version: ${{ steps.getver.outputs.version }}
+      already_released: ${{ steps.checkrelease.outputs.found || 'false' }}
     steps:
       - name: Fetch latest DuckDB version from PyPI
         id: getver
         run: |
           version=$(curl -s https://pypi.org/pypi/duckdb/json | jq -r .info.version)
-          echo "Latest DuckDB: $version"
           echo "version=$version" >> $GITHUB_OUTPUT
 
+      - name: Check if release exists
+        if: github.event_name == 'schedule'
+        id: checkrelease
+        run: |
+          version=${{ steps.getver.outputs.version }}
+          if curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/releases/tags/v$version | grep -q '"tag_name":'; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+
   build-test-release:
-    name: Build & Publish to GHCR
-    runs-on: ubuntu-latest
+    name: Build, Test, and Push
     needs: check-duckdb-version
+    if: github.event_name != 'schedule' || needs.check-duckdb-version.outputs.already_released == 'false'
+    runs-on: ubuntu-latest
     env:
       DUCKDB_VERSION: ${{ needs.check-duckdb-version.outputs.duckdb_version }}
       IMAGE_NAME: ghcr.io/${{ github.repository }}
@@ -36,7 +48,7 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -44,12 +56,12 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install dependencies for test
+      - name: Install test dependencies
         run: |
           pip install -r requirements.txt
           pip install parse-wkb
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -59,13 +71,14 @@ jobs:
       - name: Build Docker image
         run: |
           docker build --build-arg DUCKDB_VERSION=$DUCKDB_VERSION -t $IMAGE_NAME:$DUCKDB_VERSION .
+          docker tag $IMAGE_NAME:$DUCKDB_VERSION duckdb-http-api:text-base
 
       - name: Run tests in container
         run: |
           docker build -f Dockerfile.test -t duckdb-http-api:test .
           pytest tests/
 
-      - name: Push image to GHCR
+      - name: Push Docker image
         run: |
           docker tag $IMAGE_NAME:$DUCKDB_VERSION $IMAGE_NAME:latest
           docker push $IMAGE_NAME:$DUCKDB_VERSION
@@ -77,8 +90,8 @@ jobs:
           tag_name: v${{ env.DUCKDB_VERSION }}
           name: "DuckDB ${{ env.DUCKDB_VERSION }}"
           body: |
-            Docker image built with DuckDB version `${{ env.DUCKDB_VERSION }}`.
-            Pulled from PyPI automatically.
-
+            Docker image built with DuckDB `${{ env.DUCKDB_VERSION }}`.
+            Published via GitHub Actions.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
