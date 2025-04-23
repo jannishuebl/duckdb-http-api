@@ -44,7 +44,7 @@ DuckDB can be configured using environment variables prefixed with `DUCKDB_XXX`.
 You can run the DuckDB HTTP API using Docker with the following command:
 
 ```bash
-docker run --rm -p 127.0.0.1:3000:3000 duckdb-http-api
+docker run --rm -p 127.0.0.1:3000:3000 ghcr.io/jannishuebl/duckdb-http-api
 ```
 
 ### CSV Output Example
@@ -68,7 +68,7 @@ curl -X POST --data "select 1 as col1, 2 as col2;" -H "Accept: application/json"
 You can mount your data directory into the Docker container and run DuckDB queries on it:
 
 ```bash
-docker run --rm -p 127.0.0.1:3000:3000 -v /path/to/your/data:/data duckdb-http-api
+docker run --rm -p 127.0.0.1:3000:3000 -v /path/to/your/data:/data ghcr.io/jannishuebl/duckdb-http-api
 ```
 
 Then, to query a CSV file inside the mounted data:
@@ -82,7 +82,7 @@ curl -X POST --data "SELECT * FROM read_csv('/data/example.csv')" -H "Accept: ap
 You can install DuckDB extensions in your own Docker image. Below is an example Dockerfile:
 
 ```Dockerfile
-FROM duckdb-http-api:latest
+FROM ghcr.io/jannishuebl/duckdb-http-api:latest
 
 # Install the spatial extension
 RUN python execute.py "INSTALL spatial;"
