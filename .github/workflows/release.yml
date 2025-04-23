@@ -71,7 +71,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build --build-arg DUCKDB_VERSION=$DUCKDB_VERSION -t $IMAGE_NAME:$DUCKDB_VERSION .
-          docker tag $IMAGE_NAME:$DUCKDB_VERSION duckdb-http-api:text-base
+          docker tag $IMAGE_NAME:$DUCKDB_VERSION duckdb-http-api:test-base
 
       - name: Run tests in container
         run: |
