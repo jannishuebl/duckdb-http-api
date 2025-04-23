@@ -26,6 +26,7 @@ def build_and_start_test_image():
     for _ in range(10):
         try:
             response = requests.post(API_URL, data="SELECT 1;")
+            print(response)
             if response.status_code == 200:
                 break
         except requests.ConnectionError:
