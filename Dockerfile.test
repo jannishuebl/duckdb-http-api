@@ -1,0 +1,6 @@
+FROM duckdb-http-api:latest
+
+COPY init-test.sql /init.sql
+
+RUN python execute.py "INSTALL spatial;" || true
+

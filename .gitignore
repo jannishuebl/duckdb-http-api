@@ -1,0 +1,33 @@
+# Bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Local configuration
+.env
+*.env
+
+# Test artifacts
+.coverage
+pytest_cache/
+.tox/
+htmlcov/
+
+# MacOS & editor metadata
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Docker build cache
+*.log
+
+# Ignore built images/tags if stored locally
+*.tar
